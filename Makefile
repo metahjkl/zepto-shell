@@ -1,3 +1,3 @@
 
 zepto: src/main.c
-	gcc src/main.c -o zepto
+	gcc -Wall -Wextra src/main.c -o zepto
