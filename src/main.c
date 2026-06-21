@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 int get_tokens(char *string, char **tokens, int token_limit)
 {
@@ -53,14 +55,29 @@ int main(int argc, char *argv[])
         printf("zepto> ");
         errorcode = getline(&user_line, &line_size, stdin);
         if (errorcode != -1) {
-            printf("You entered: %s", user_line);
             int token_count = get_tokens(user_line, tokens, (sizeof(tokens)/sizeof(tokens[0])));
 
             if (token_count > 0) {
-                int i = 0;
-                while (tokens[i] != NULL) {
-                    printf("tokens[%d] = %s\n", i, tokens[i]);
-                    i++;
+                /*int i = 0;*/
+                /*while (tokens[i] != NULL) {*/
+                /*    printf("tokens[%d] = %s\n", i, tokens[i]);*/
+                /*    i++;*/
+                /*}*/
+                int pid = fork();
+
+                if (pid == -1) {
+                    perror("fork");
+                }
+                else if (pid == 0) {
+                    extern char **environ;
+                    execve(tokens[0], tokens, environ);
+
+                    perror("execve");
+                    exit(EXIT_FAILURE);
+                }
+                else {
+                    int wstatus;
+                    wait(&wstatus);
                 }
             }
         }
